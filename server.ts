@@ -39,7 +39,7 @@ app.get("/", async (req, res) => {
 
 app.get("/pastes/", async (req, res) => {
   try {
-    const {rows} = await client.query('SELECT * FROM pastes ORDER BY time LIMIT 10')
+    const {rows} = await client.query('SELECT * FROM pastes ORDER BY time DESC LIMIT 10')
     res.json(rows)
   }
   catch (ex) {
