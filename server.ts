@@ -27,9 +27,49 @@ const client = new Client(dbConfig);
 client.connect();
 
 app.get("/", async (req, res) => {
-  const dbres = await client.query('select * from categories');
-  res.json(dbres.rows);
+  try {
+    const dbres = await client.query('select * from pastes');
+    res.json(dbres.rows);
+  }
+  catch (ex) {
+    console.log("Error", ex)
+    res.json(ex)
+  }
 });
+
+app.get("/pastes/", async (req, res) => {
+  try {
+    const {rows} = await client.query('SELECT * FROM pastes ORDER BY time LIMIT 10')
+    res.json(rows)
+  }
+  catch (ex) {
+    res.json
+  }
+
+});
+
+app.post("/pastes/", async (req, res) => {
+  try {
+    if (req.body.title === undefined) {
+      await client.query("INSERT INTO pastes (paste) VALUES ($1)", [req.body.paste])
+      res.status(201).json({
+        status: "Success!"
+      })
+    }
+    else {
+      await client.query("INSERT INTO pastes (paste, title) VALUES ($1, $2)", [req.body.paste, req.body.title])
+      res.status(201).json({
+        status: "Success!"
+      })
+    }
+  }
+  catch {
+    res.status(400).json({
+      status: "Fail"
+    })
+    console.log("fail")
+  }
+})
 
 
 //Start the server on the given port
