@@ -43,6 +43,7 @@ app.get("/pastes/", async (req, res) => {
     res.json(rows)
   }
   catch (ex) {
+    console.log(ex.message)
     res.json
   }
 
@@ -63,15 +64,56 @@ app.post("/pastes/", async (req, res) => {
       })
     }
   }
-  catch {
+  catch (ex) {
     res.status(400).json({
-      status: "Fail"
+      status: ex.message
     })
-    console.log("fail")
+    console.error(ex.message)
   }
 })
 
+// Comments
+app.get("/pastes/comments/:id", async (req, res) => {
+  try {
+    const {rows} = await client.query("SELECT * FROM comments WHERE paste_id = $1 ORDER BY time desc", [req.params.id])
+    res.status(200).json(
+      rows
+    )
+  }
+  catch (ex) {
 
+  }
+})
+
+app.post("/pastes/comments", async (req, res) => {
+  try {
+    await client.query("INSERT INTO comments (paste_id, comment) VALUES ($1, $2)", [req.body.paste_id, req.body.comment])
+    res.status(201).json({
+      status: "success!"
+    })
+  }
+  catch (ex) {
+    console.log(ex.message)
+    res.status(400).json({
+      status: ex.message
+    })
+  }
+})
+
+app.delete("/pastes/comments", async (req, res) => {
+  try {
+    await client.query("DELETE FROM comments where id = $1", [req.body.id])
+    res.status(410).json({
+      status: "deleted"
+    })
+  }
+  catch (ex) {
+    console.log(ex.message)
+    res.status(400).json({
+      status: ex.message
+    })
+  }
+})
 //Start the server on the given port
 const port = process.env.PORT;
 if (!port) {
